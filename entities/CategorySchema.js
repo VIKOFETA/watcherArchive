@@ -35,6 +35,11 @@ module.exports = new EntitySchema({
         }
       },
       inverseSide: 'category',
-    }
+    },
+    post: {
+      type: 'one-to-many',
+      target: 'Post',
+      inverseSide: 'categories',
+    },
   }
 });

@@ -1,9 +1,7 @@
 class Post {
-  constructor(id, title, interaction_date, catergory_id, user_id, description, rating, count, image) {
+  constructor(id, title, interaction_date, description, rating, count, image) {
       this.id = id;
       this.title = title;
-      this.user_id = user_id;
-      this.catergory_id = catergory_id;
       this.interaction_date = interaction_date;
       this.description = description;
       this.rating = rating;

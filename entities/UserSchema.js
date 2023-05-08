@@ -29,14 +29,11 @@ module.exports = new EntitySchema({
     }
   },
   relations: {
-    // role: {
-    //   target: "Role",
-    //   type: "one-to-many",
-    //   joinColumn: {
-    //     name: "role_id",
-    //   },
-    //   inverseSide: 'users',
-    // },
+    post: {
+      type: 'one-to-many',
+      target: 'Post',
+      inverseSide: 'users',
+    },
     role: {
       type: 'many-to-one',
       target: 'Role',

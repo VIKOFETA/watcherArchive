@@ -49,29 +49,19 @@ module.exports = new EntitySchema({
 
   },
   relations: {
-    user_id: {
-      target: "User",
-      type: "one-to-many",
+    category: {
+      type: 'many-to-one',
+      target: 'Category',
+      joinColumn: {
+        name: 'category_id',
+      },
+    },
+    user: {
+      type: 'many-to-one',
+      target: 'User',
       joinColumn: {
         name: 'user_id',
-        joinColumn: {
-          name: 'user_id',
-          referencedColumnName: 'id'
-        },
       },
-      cascade: true
     },
-    category_id: {
-      target: 'Category',
-      type: 'one-to-many',
-      joinTable: {
-        name: 'category_id',
-        joinColumn: {
-          name: 'category_id',
-          referencedColumnName: 'id'
-        },
-      },
-      cascade: true
-    }
   }
 });
