@@ -1,6 +1,7 @@
 const EntitySchema = require("typeorm").EntitySchema;
 const User = require("../models/User").User;
 const Role = require("../models/Role").Role;
+const Category = require("../models/Category").Category;
 
 module.exports = new EntitySchema({
   name: "User",
@@ -34,6 +35,24 @@ module.exports = new EntitySchema({
       joinColumn: {
         name: 'role_id',
       },
+      cascade: true
+    },
+    categories: {
+      name: 'categories',
+      target: 'Category',
+      type: 'many-to-many',
+      joinTable: {
+        name: 'user_category',
+        joinColumn: {
+          name: 'user_id',
+          referencedColumnName: 'id'
+        },
+        inverseJoinColumn: {
+          name: 'category_id',
+          referencedColumnName: 'id'
+        }
+      },
+      inverseSide: 'users',
       cascade: true
     }
   }
