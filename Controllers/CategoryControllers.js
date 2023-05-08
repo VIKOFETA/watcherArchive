@@ -6,7 +6,7 @@ exports.getAll = async (req, res) => {
   try {
     const user = await connection.getRepository(User).findOne({
         where: {
-          id: req.user.user_id
+          id: req.user.id
         },
         relations: {
           categories: true
@@ -29,7 +29,7 @@ exports.getOne = async (req, res) => {
 
     const user = await connection.getRepository(User).findOne({
       where: {
-        id: req.user.user_id
+        id: req.user.id
       },
       relations: {
         categories: true
@@ -49,7 +49,7 @@ exports.create = async (req, res) => {
 
     const user = await connection.getRepository(User).findOne({
         where: {
-          id: req.user.user_id
+          id: req.user.id
         },
         relations: {
           categories: true
@@ -78,7 +78,7 @@ exports.delete = async (req, res) => {
     const { id } = req.params;
     const user = await connection.getRepository(User).findOne({
       where: {
-        id: req.user.user_id
+        id: req.user.id
       },
       relations: {
         categories: true
@@ -102,7 +102,7 @@ exports.change = async (req, res) => {
     const { id, name } = req.body;
     const category = await connection.getRepository(Category).findOne({ where: { id: id }, relations: { users: true } });
 
-    if(category.users.filter(user => { return user.id == req.user.user_id }).length == 0) {
+    if(category.users.filter(user => { return user.id == req.user.id }).length == 0) {
       res.status(400).json({message: "User has no such category"});  
     }
     
@@ -112,7 +112,7 @@ exports.change = async (req, res) => {
       res.status(200).json({message: "Category name changed", category: {id: response.id, name: response.name}});    
     }
     
-    const user = await connection.getRepository(User).findOne({where: { id: req.user.user_id }, relations: { categories: true } });
+    const user = await connection.getRepository(User).findOne({where: { id: req.user.id }, relations: { categories: true } });
     user.categories = user.categories.filter(cat => { return cat.id != id });
 
     const tempCategory = await connection.getRepository(Category).findOne({where: {name: name}});

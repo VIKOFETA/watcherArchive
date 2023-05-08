@@ -6,10 +6,9 @@ const jwt = require('jsonwebtoken');
 const { jwtKey } = require('../config');
 const { validationResult } = require('express-validator');
 
-const generateToken = async (user_id, role) => {
+const generateToken = async (user) => {
   const info = {
-    user_id,
-    role
+    user,
   }
 
   return jwt.sign(info, jwtKey, { expiresIn: '24h' });
@@ -20,7 +19,7 @@ exports.login = async (req, res) => {
     const { login, password } = req.body;
 
     // check for existed login
-    const user = await connection.getRepository(User).findOneBy({login: login});
+    const user = await connection.getRepository(User).findOne({where: { login: login}, relations: { role: true } } );
     if(!user) {
       res.status(400).json({ message: `User ${login} not exist`, login: login});
     }
@@ -30,11 +29,9 @@ exports.login = async (req, res) => {
       res.status(400).json({ message: 'Password is incorrect' });
     }
 
-    const role = await connection.getRepository(Role).findOneBy({id: user.role_id});
+    const token = await generateToken(user);
 
-    const token = await generateToken(user.id, role);
-
-    return res.status(200).json({token: token, user: user, role: role});
+    return res.status(200).json({token: token, user: user});
 
   } catch(e) {
     res.status(500).json({ message: 'Registration error', error: e });
@@ -62,7 +59,7 @@ exports.registration = async (req, res) => {
     const userRole = await connection.getRepository(Role).findOneBy({name: "USER"});
 
     //create User
-    const user = connection.getRepository(User).create({ login: login, role_id: userRole.id, password: hashPass});
+    const user = connection.getRepository(User).create({ login: login, role: userRole, password: hashPass});
     const response = await connection.getRepository(User).save(user);
     // successfull response
     return res.json({message: 'User added successfully', user: response });

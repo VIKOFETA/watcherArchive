@@ -13,8 +13,9 @@ module.exports = function(req, res, next) {
       return res.status(403).json({ message: 'User is not logged in' });
     }
 
-    const decodedData = jwt.verify(token, jwtKey);
-    req.user = decodedData;
+    const { user } = jwt.verify(token, jwtKey);
+ 
+    req.user = user;
     next();
 
   } catch (err) {

@@ -13,11 +13,11 @@ module.exports = new EntitySchema({
       type: "int",
       generated: true
     },
-    role_id: {
-      type: "int",
-      nullable: false,
-      index: true
-    },
+    // role_id: {
+    //   type: "int",
+    //   nullable: false,
+    //   index: true
+    // },
     login: {
       type: "varchar",
       nullable: false,
@@ -29,13 +29,20 @@ module.exports = new EntitySchema({
     }
   },
   relations: {
-    roles: {
-      target: "Role",
-      type: "one-to-many",
+    // role: {
+    //   target: "Role",
+    //   type: "one-to-many",
+    //   joinColumn: {
+    //     name: "role_id",
+    //   },
+    //   inverseSide: 'users',
+    // },
+    role: {
+      type: 'many-to-one',
+      target: 'Role',
       joinColumn: {
         name: 'role_id',
       },
-      cascade: true
     },
     categories: {
       name: 'categories',
@@ -53,7 +60,6 @@ module.exports = new EntitySchema({
         }
       },
       inverseSide: 'users',
-      cascade: true
     }
   }
 });

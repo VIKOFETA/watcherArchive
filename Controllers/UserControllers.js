@@ -6,7 +6,7 @@ exports.getAll = async (req, res) => {
   try {
     const response = await connection
       .getRepository(User)
-      .find();
+      .find({ relations: { role: true } } );
     res.send(response);
   } catch(e) {
     console.log(e);
@@ -20,7 +20,7 @@ exports.getOne = async (req, res) => {
       res.status(400).json({'message': 'Id is not find, please add id.'})
     }
 
-    const response = await connection.getRepository(User).findOneBy({id: id});
+    const response = await connection.getRepository(User).findOne({ where: { id: id }, relations: { role: true } });
     res.send(response);
   } catch(e) {
     res.status(500).json(e);
@@ -41,7 +41,7 @@ exports.create = async (req, res) => {
       res.status(400).json({ message: 'Role not found', role: role});
     }
 
-    const user = connection.getRepository(User).create({ login: login, role_id: userRole.id, password: password});
+    const user = connection.getRepository(User).create({ login: login, role: userRole, password: password});
     const response = await connection.getRepository(User).save(user);
     res.json({message: 'User added successfully', response: response });
 
@@ -77,8 +77,8 @@ exports.setRole = async (req, res) => {
       res.status(400).json({message: `Role ${role}, not found`})
     }
 
-    user.role_id = roleObj.id;
-    const response = await connection.getRepository(User).update({login: login}, { role_id: roleObj.id });
+    user.role = roleObj;
+    const response = await connection.getRepository(User).save(user);
 
     res.status(200).json({message: `Role ${role} was set for ${login}`, response: response});
   } catch(e) {

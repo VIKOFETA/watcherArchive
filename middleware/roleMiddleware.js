@@ -14,9 +14,9 @@ module.exports = function(roles) {
         return res.status(403).json({ message: 'User is not logged in' });
       }
   
-      const { role } = jwt.verify(token, jwtKey);
+      const { user } = jwt.verify(token, jwtKey);
 
-      if(!roles.includes(role.name)) {
+      if(!roles.includes(user.role.name)) {
         return res.status(403).json({ message: 'Access denied' });
       }
 

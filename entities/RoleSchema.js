@@ -17,5 +17,19 @@ module.exports = new EntitySchema({
       unique: true,
       default: "USER"
     },
-  }
+  },
+  // relations: {
+  //   users: {
+  //     target: "User",
+  //     type: "many-to-one",
+  //     inverseSide: 'roles',
+  //   },
+  // }
+  relations: {
+    users: {
+      type: 'one-to-many',
+      target: 'User',
+      inverseSide: 'role',
+    },
+  },
 });

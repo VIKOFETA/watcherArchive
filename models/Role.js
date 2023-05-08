@@ -1,7 +1,8 @@
 class Role {
-  constructor(id, name) {
+  constructor(id, name, users) {
       this.id = id;
       this.name = name;
+      this.users = users;
   }
 }
 
