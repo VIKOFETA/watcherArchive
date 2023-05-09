@@ -97,7 +97,7 @@ exports.delete = async (req, res) => {
   }
 };
 exports.change = async (req, res) => {
-  if(!req.params) return res.sendStatus(400).json({message: 'Info is not find, please add id and name.'});
+  if(!req.body) return res.sendStatus(400).json({message: 'Info is not find, please add id and name.'});
   try {
     const { id, name } = req.body;
     const category = await connection.getRepository(Category).findOne({ where: { id: id }, relations: { users: true } });
