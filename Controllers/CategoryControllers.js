@@ -14,17 +14,17 @@ exports.getAll = async (req, res) => {
       }
     );
     const categories = user.categories;
-    res.json({categories: categories});
+    return res.json({categories: categories});
   } catch(e) {
     console.log(e);
-    res.status(500).json(e);
+    return res.status(500).json(e);
   }
 };
 exports.getOne = async (req, res) => {
   try {
     const { id } = req.params;
     if(!id) {
-      res.status(400).json({'message': 'Id is not find, please add id.'})
+      return res.status(400).json({'message': 'Id is not find, please add id.'})
     }
 
     const user = await connection.getRepository(User).findOne({
@@ -37,9 +37,9 @@ exports.getOne = async (req, res) => {
     }
   );
   const category = user.categories.filter(el=>{ return el.id == id; });
-  res.send(category);
+  return res.send(category);
   } catch(e) {
-    res.status(500).json(e);
+    return res.status(500).json(e);
   }
 };
 exports.create = async (req, res) => {
@@ -66,10 +66,10 @@ exports.create = async (req, res) => {
     const response = await connection.getRepository(Category).save(category);
     user.categories.push(category);
     await connection.getRepository(User).save(user);
-    res.json({message: 'Category added successfully', response: response });
+    return res.json({message: 'Category added successfully', response: response });
   } catch(e) {
     console.log('error', e)
-    res.status(500).json(e);
+    return res.status(500).json(e);
   }
 };
 exports.delete = async (req, res) => {
@@ -88,12 +88,12 @@ exports.delete = async (req, res) => {
   if( user.categories.filter(el=>{ return el.id == id; }).length > 0 ) {
     user.categories = user.categories.filter(el=>{ return el.id != id; }); 
     const response = await connection.getRepository(User).save(user);
-    res.status(200).json({id: id, message: 'Category Successfuly deleted', response: response})
+    return res.status(200).json({id: id, message: 'Category Successfuly deleted', response: response})
   } 
-  res.status(400).json({message: 'No such category'});
+  return res.status(400).json({message: 'No such category'});
 
   } catch(e) {
-    res.status(500).json(e);
+    return res.status(500).json(e);
   }
 };
 exports.change = async (req, res) => {
@@ -103,13 +103,13 @@ exports.change = async (req, res) => {
     const category = await connection.getRepository(Category).findOne({ where: { id: id }, relations: { users: true } });
 
     if(category.users.filter(user => { return user.id == req.user.id }).length == 0) {
-      res.status(400).json({message: "User has no such category"});  
+      return res.status(400).json({message: "User has no such category"});  
     }
     
     if(category.users.length == 1) {
       category.name = name;
       const response = await connection.getRepository(Category).save(category);
-      res.status(200).json({message: "Category name changed", category: {id: response.id, name: response.name}});    
+      return res.status(200).json({message: "Category name changed", category: {id: response.id, name: response.name}});    
     }
     
     const user = await connection.getRepository(User).findOne({where: { id: req.user.id }, relations: { categories: true } });
@@ -119,7 +119,7 @@ exports.change = async (req, res) => {
     if(tempCategory) {
       user.cat.push(tempCategory)
       await connection.getRepository(User).save(user);
-      res.status(200).json({message: "Category name changed", category: { id: tempCategory.id, name: tempCategory.name }})
+      return res.status(200).json({message: "Category name changed", category: { id: tempCategory.id, name: tempCategory.name }})
     } 
     
     
@@ -127,10 +127,10 @@ exports.change = async (req, res) => {
     await connection.getRepository(Category).save(newCategory);
     user.categories.push(newCategory);
     await connection.getRepository(User).save(user);    
-    res.status(200).json({message: "Category name changed", category: newCategory})
+    return res.status(200).json({message: "Category name changed", category: newCategory})
     // res.status(200).json({message: "Category change", })
   } catch(e) {
     console.log(e);
-    res.status(500).json(e);
+    return res.status(500).json(e);
   }
 };

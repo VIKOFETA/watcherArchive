@@ -3,6 +3,7 @@
 
 let createError = require('http-errors');
 let express = require('express');
+let cors = require('cors')
 let path = require('path');
 let cookieParser = require('cookie-parser');
 let logger = require('morgan');
@@ -25,6 +26,8 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(fileUpload());
+
+app.use(cors())
 
 // app.use(express.static('./assets'));
 

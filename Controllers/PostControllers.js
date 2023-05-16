@@ -19,17 +19,17 @@ exports.getAll = async (req, res) => {
       }
     );
 
-    res.json({posts: posts});
+    return res.json({posts: posts});
   } catch(e) {
     console.log(e);
-    res.status(500).json(e);
+    return res.status(500).json(e);
   }
 };
 exports.getOne = async (req, res) => {
   try {
     const { id } = req.params;
     if(!id) {
-      res.status(400).json({message: 'Id is not find, please add id.'})
+      return res.status(400).json({message: 'Id is not find, please add id.'})
     }
 
     const where = { user_id: req.user.id, id: id };
@@ -40,9 +40,9 @@ exports.getOne = async (req, res) => {
         ...where,
       }
     );
-    res.send(post);
+    return res.send(post);
   } catch(e) {
-    res.status(500).json(e);
+    return res.status(500).json(e);
   }
 };
 exports.create = async (req, res) => {
@@ -80,7 +80,7 @@ exports.create = async (req, res) => {
       firstFile.mv(filePath, (err) => {
         if (err) {
           console.log(err);
-          res.status(400).json({message: "file save error", error: err });
+          return res.status(400).json({message: "file save error", error: err });
         }
       });
 
@@ -91,10 +91,10 @@ exports.create = async (req, res) => {
     const post = await connection.getRepository(Post).create(newPostParams);
     const response = await connection.getRepository(Post).save(post);
 
-    res.json({message: 'Post added successfully', response: response });
+    return res.json({message: 'Post added successfully', response: response });
   } catch(e) {
     console.log('error', e)
-    res.status(500).json(e);
+    return res.status(500).json(e);
   }
 };
 exports.delete = async (req, res) => {
@@ -117,10 +117,10 @@ exports.delete = async (req, res) => {
       user_id: req.user.id,
       id: id
     });
-    res.status(400).json({message: 'Successfuly deleted', response: result});
+    return res.status(400).json({message: 'Successfuly deleted', response: result});
 
   } catch(e) {
-    res.status(500).json(e);
+    return res.status(500).json(e);
   }
 };
 exports.change = async (req, res) => {
@@ -131,7 +131,7 @@ exports.change = async (req, res) => {
     let post = await connection.getRepository(Post).findOne({ where: {user_id: req.user.id, id: id } });
 
     if(!post) {
-      res.status(400).json({message: 'No such post'});
+      return res.status(400).json({message: 'No such post'});
     }
 
     const newParams = {};
@@ -157,7 +157,7 @@ exports.change = async (req, res) => {
       firstFile.mv(filePath, (err) => {
         if (err) {
           console.log(err);
-          res.status(400).json({message: "file save error", error: err });
+          return res.status(400).json({message: "file save error", error: err });
         }
       });
 
@@ -165,7 +165,7 @@ exports.change = async (req, res) => {
     }
 
     if(Object.keys(newParams).length === 0) {
-      res.status(400).json({message: 'Nothing to change'});
+      return res.status(400).json({message: 'Nothing to change'});
     }
 
     await connection.getRepository(Post)
@@ -173,9 +173,9 @@ exports.change = async (req, res) => {
     
     post = await connection.getRepository(Post).findOne({ where: {user_id: req.user.id, id: id } });
 
-    res.status(200).json({message: "Post changed", post: post})
+    return res.status(200).json({message: "Post changed", post: post})
   } catch(e) {
     console.log(e);
-    res.status(500).json(e);
+    return res.status(500).json(e);
   }
 };

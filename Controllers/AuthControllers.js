@@ -21,12 +21,12 @@ exports.login = async (req, res) => {
     // check for existed login
     const user = await connection.getRepository(User).findOne({where: { login: login}, relations: { role: true } } );
     if(!user) {
-      res.status(400).json({ message: `User ${login} not exist`, login: login});
+      return res.status(400).json({ message: `User ${login} not exist`, login: login});
     }
 
     const validPass = bcrypt.compareSync(password, user.password);
     if(!validPass) {
-      res.status(400).json({ message: 'Password is incorrect' });
+      return res.status(400).json({ message: 'Password is incorrect' });
     }
 
     const token = await generateToken(user);
@@ -34,7 +34,8 @@ exports.login = async (req, res) => {
     return res.status(200).json({token: token, user: user});
 
   } catch(e) {
-    res.status(500).json({ message: 'Registration error', error: e });
+    console.log('Login error', e);
+    return res.status(500).json({ message: 'Login error', error: e });
   }
 };
 
@@ -50,7 +51,7 @@ exports.registration = async (req, res) => {
     // check for existed login
     const tempUser = await connection.getRepository(User).findOneBy({login: login});
     if(tempUser) {
-      res.status(400).json({ message: 'User login already exists', login: login});
+      return res.status(400).json({ message: 'User login already exists', login: login});
     }
 
     //get hash password
@@ -65,6 +66,6 @@ exports.registration = async (req, res) => {
     return res.json({message: 'User added successfully', user: response });
   } catch(e) {
     console.log(e);
-    res.status(500).json({message: 'Registration error', error: e});
+    return res.status(500).json({message: 'Registration error', error: e});
   }
 };
