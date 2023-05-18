@@ -29,6 +29,8 @@ app.use(fileUpload());
 
 app.use(cors())
 
+app.disable('etag');
+
 // app.use(express.static('./assets'));
 
 // routes

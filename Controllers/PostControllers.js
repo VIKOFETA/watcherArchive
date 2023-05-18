@@ -8,11 +8,14 @@ exports.getAll = async (req, res) => {
   // if(!req.body) return res.status(400).json({message: 'Data required'});
   try {    
     const where = { user_id: req.user.id };
-    if(req.body.category) {
-      where.category_id = req.body.category;
-    }    
+    if(req.query.category_id) {
+      where.category_id = req.query.category_id;
+    }
+    // console.log(req.user, req.body);
     const posts = await connection.getRepository(Post).find({
-        ...where,
+        where: {
+          ...where,
+        },
         order: {
           interaction_date: "DESC"
         }
@@ -51,7 +54,7 @@ exports.create = async (req, res) => {
     if(!req.body.category) return res.status(400).json({message: 'Category id required'});
     if(!req.body.title) return res.status(400).json({message: 'Title required'});
 
-    const { title, category, description, rating } = req.body;
+    const { title, category, description, rating, count } = req.body;
 
     // if user has such category
     const user = await connection.getRepository(User).findOne({
@@ -68,7 +71,7 @@ exports.create = async (req, res) => {
       user_id: user.id,
       category_id: category,
       rating: rating || 0,
-      count: 1,
+      count: count || 1,
       image: "",
     }
 
@@ -76,13 +79,18 @@ exports.create = async (req, res) => {
     const files = req.files;
     if(files) {
       const firstFile = files[Object.keys(files)[0]];
-      const filePath = path.join('./public/assets/images', firstFile.name);
-      firstFile.mv(filePath, (err) => {
-        if (err) {
-          console.log(err);
-          return res.status(400).json({message: "file save error", error: err });
-        }
-      });
+      const filePath = path.join('./assets/images', firstFile.name);
+
+      if (!fs.existsSync(path.join('./public/', filePath))) {
+
+        firstFile.mv(path.join('./public/', filePath), (err) => {
+          if (err) {
+            console.log(err);
+            return res.status(400).json({message: "file save error", error: err });
+          }
+        });
+
+      }
 
       newPostParams.image = filePath
     }
@@ -91,7 +99,7 @@ exports.create = async (req, res) => {
     const post = await connection.getRepository(Post).create(newPostParams);
     const response = await connection.getRepository(Post).save(post);
 
-    return res.json({message: 'Post added successfully', response: response });
+    return res.json({message: 'Post added successfully', response: response, post: post });
   } catch(e) {
     console.log('error', e)
     return res.status(500).json(e);
@@ -126,7 +134,7 @@ exports.delete = async (req, res) => {
 exports.change = async (req, res) => {
   if(!req.body.id) return res.status(400).json({message: 'Id is not find, please add id.'});
   try {
-    const { id, title, description, count, rating,  } = req.body;
+    const { id, title, description, count, rating } = req.body;
 
     let post = await connection.getRepository(Post).findOne({ where: {user_id: req.user.id, id: id } });
 
@@ -144,7 +152,7 @@ exports.change = async (req, res) => {
     const files = req.files;
     if(files) {
       if(post.image){
-        fs.unlink(post.image, (err) => {
+        fs.unlink(path.join('./public/', post.image), (err) => {
           if (err) {
             console.error(err);
             return;
@@ -153,8 +161,8 @@ exports.change = async (req, res) => {
       }
 
       const firstFile = files[Object.keys(files)[0]];
-      const filePath = path.join('./public/assets/images', firstFile.name);
-      firstFile.mv(filePath, (err) => {
+      const filePath = path.join('./assets/images', firstFile.name);
+      firstFile.mv(path.join('./public/', filePath), (err) => {
         if (err) {
           console.log(err);
           return res.status(400).json({message: "file save error", error: err });
