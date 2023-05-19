@@ -66,7 +66,7 @@ exports.create = async (req, res) => {
     const response = await connection.getRepository(Category).save(category);
     user.categories.push(category);
     await connection.getRepository(User).save(user);
-    return res.json({message: 'Category added successfully', response: response });
+    return res.json({message: 'Category added successfully', response: response, category: category });
   } catch(e) {
     console.log('error', e)
     return res.status(500).json(e);

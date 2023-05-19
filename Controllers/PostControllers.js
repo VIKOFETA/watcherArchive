@@ -2,6 +2,7 @@ const User = require('../models/User').User
 const Post = require('../models/Post').Post
 const path = require('path');
 const connection = require('../db')
+const { ILike } = require("typeorm")
 const fs = require('fs');
 
 exports.getAll = async (req, res) => {
@@ -11,16 +12,17 @@ exports.getAll = async (req, res) => {
     if(req.query.category_id) {
       where.category_id = req.query.category_id;
     }
-    // console.log(req.user, req.body);
+    if(req.query.search && req.query.search !== '') {
+      where.title = ILike(`%${req.query.search}%`);
+    }
     const posts = await connection.getRepository(Post).find({
-        where: {
-          ...where,
-        },
+        where,
         order: {
           interaction_date: "DESC"
         }
       }
     );
+    console.log(posts, where);
 
     return res.json({posts: posts});
   } catch(e) {
@@ -125,7 +127,7 @@ exports.delete = async (req, res) => {
       user_id: req.user.id,
       id: id
     });
-    return res.status(400).json({message: 'Successfuly deleted', response: result});
+    return res.status(200).json({message: 'Successfuly deleted', response: result});
 
   } catch(e) {
     return res.status(500).json(e);
