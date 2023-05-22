@@ -22,8 +22,6 @@ exports.getAll = async (req, res) => {
         }
       }
     );
-    console.log(posts, where);
-
     return res.json({posts: posts});
   } catch(e) {
     console.log(e);

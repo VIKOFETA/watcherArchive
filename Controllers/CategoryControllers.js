@@ -1,5 +1,6 @@
 const User = require('../models/User').User
 const Category = require('../models/Category').Category
+const Post = require('../models/Post').Post
 const connection = require('../db')
 
 exports.getAll = async (req, res) => {
@@ -60,7 +61,7 @@ exports.create = async (req, res) => {
     if(tempCategory){
       user.categories.push(tempCategory)
       await connection.getRepository(User).save(user);
-      res.status(200).json({ message: 'Category added successfully', category: tempCategory});
+      returnres.status(200).json({ message: 'Category added successfully', category: tempCategory});
     }
     const category = await connection.getRepository(Category).create({ name: name });
     const response = await connection.getRepository(Category).save(category);
@@ -77,22 +78,59 @@ exports.delete = async (req, res) => {
   try {
     const { id } = req.params;
     const user = await connection.getRepository(User).findOne({
-      where: {
-        id: req.user.id
-      },
-      relations: {
-        categories: true
+        where: {
+          id: req.user.id
+        },
+        relations: {
+          categories: true
+        }
       }
+    );
+    if( user.categories.filter(el=>{ return el.id == id; }).length > 0 ) {
+      user.categories = user.categories.filter(el=>{ return el.id != id; });
+
+      const result = await connection.getRepository(Post).delete({
+        user_id: req.user.id,
+        category_id: id
+      });
+
+      const responseUser = await connection.getRepository(User).save(user);
+
+      const category = await connection.getRepository(Category).findOne({
+          where: {
+            id: id,
+          },
+          relations: {
+            users: true
+          }
+        }
+      );
+      let responseCat = null;
+
+      if(!category.users || category.users.length <= 1) {
+        responseCat = await connection.getRepository(Category).delete({ id: category.id });
+      }
+
+      return res.status(200).json({id: id, message: 'Category Successfuly deleted', responseUser: responseUser, response: responseCat})
     }
-  );
-  if( user.categories.filter(el=>{ return el.id == id; }).length > 0 ) {
-    user.categories = user.categories.filter(el=>{ return el.id != id; }); 
-    const response = await connection.getRepository(User).save(user);
-    return res.status(200).json({id: id, message: 'Category Successfuly deleted', response: response})
-  } 
-  return res.status(400).json({message: 'No such category'});
+
+    // const category = await connection.getRepository(Category).findOne({
+    //     where: {
+    //       id: id,
+    //     },
+    //     relations: {
+    //       users: true
+    //     }
+    //   }
+    // );
+    // console.log(category.users.length);
+    // return res.status(400).json({cat: category});
+
+
+    return res.status(400).json({message: 'No such category'});
 
   } catch(e) {
+    console.log(e);
     return res.status(500).json(e);
   }
 };
@@ -102,7 +140,7 @@ exports.change = async (req, res) => {
     const { id, name } = req.body;
     const category = await connection.getRepository(Category).findOne({ where: { id: id }, relations: { users: true } });
 
-    if(category.users.filter(user => { return user.id == req.user.id }).length == 0) {
+    if(category.users && category.users.filter(user => { return user.id == req.user.id }).length == 0) {
       return res.status(400).json({message: "User has no such category"});  
     }
     
